@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic AI | Personal Tutor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- No external dependencies for full offline-ready capability -->
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>ACADEMIC AI</span>
+        </div>
+        <button class="new-chat-btn" onclick="window.location.reload()">+ New Session</button>
+        <div class="history-label" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Recent History</div>
+        <div class="history-list" id="history-list">
+            <!-- History items will appear here -->
+        </div>
+        <button class="upgrade-btn" id="open-upgrade-modal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Upgrade to Pro
+        </button>
+        <div style="margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-secondary);">
+            Offline Mode Active
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <div class="header-left">
+                <select class="subject-select" id="subject-select">
+                    <option value="General">General Academic</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="History">History</option>
+                </select>
+            </div>
+            <div class="header-right">
+                <button id="theme-toggle" style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div id="chat-container">
+            <div class="message ai">
+                <div class="message-content">
+                    Greetings! I am your <strong>Academic AI Tutor</strong>. How can I assist you in your studies today? Select a subject above or ask any academic question to begin.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea id="user-input" placeholder="Type your academic question here..." rows="1"></textarea>
+                <div class="controls">
+                    <button class="action-btn" id="explain-btn" title="Explain the last answer in simpler terms">Simpler Language</button>
+                    <button class="action-btn" id="summarize-btn" title="Summarize the last answer into bullet points">Summarize</button>
+                    <button class="stop-btn" id="stop-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
+                        Stop
+                    </button>
+                    <button class="voice-input-btn" id="voice-input-btn" title="Ask with your voice">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    </button>
+                    <button class="send-btn" id="send-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 0.7rem; color: var(--text-secondary); margin-top: 12px;">
+                Focused on Academic Excellence
+            </p>
+        </div>
+    </main>
+
+    <!-- Subscription Modal -->
+    <div class="modal-overlay" id="subscription-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <div class="modal-header">
+                <h2>Unlock Academic Pro</h2>
+                <p>Take your local AI tutoring to the next level.</p>
+            </div>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Free Plan</h3>
+                    <div class="price">₹0<span>/mo</span></div>
+                    <ul>
+                        <li>Basic Local LLM Access</li>
+                        <li>Standard Math Solver</li>
+                        <li>Session History</li>
+                    </ul>
+                    <button class="plan-btn current">Current Plan</button>
+                </div>
+                <div class="pricing-card pro">
+                    <div class="pro-badge">Most Popular</div>
+                    <h3>Pro Plan</h3>
+                    <div class="price">₹149<span>/mo</span></div>
+                    <ul>
+                        <li>Advanced Reasoning Models</li>
+                        <li>Unlimited File Uploads</li>
+                        <li>Priority Background Processing</li>
+                        <li>Sync across devices</li>
+                    </ul>
+                    <button class="plan-btn upgrade" onclick="alert('Demo: Redirecting to payment gateway...')">Upgrade Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script>
+        // Theme toggle logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        themeToggle.onclick = () => {
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        };
+        // Load preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</body>
+</html>
