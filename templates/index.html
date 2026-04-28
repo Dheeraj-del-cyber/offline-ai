@@ -28,6 +28,7 @@
         <div style="margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-secondary);">
             Offline Mode Active
         </div>
+        <button id="diag-btn" style="width: 100%; margin-top: 10px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;">Run Visual Diagnostics</button>
     </aside>
 
     <main class="main-content">
@@ -142,5 +143,36 @@
         }
     </script>
     <div id="toast">Thank you for your feedback!</div>
+    <script>
+        document.getElementById('diag-btn').onclick = () => {
+            const container = document.getElementById('chat-container');
+            const testMsg = document.createElement('div');
+            testMsg.className = 'message ai';
+            testMsg.innerHTML = `
+                <div class="message-content">
+                    <div class="msg-header"><span>Diagnostics</span></div>
+                    <div class="msg-body">
+                        Running system test...
+                        <div class="visual-container">
+                            <canvas class="astra-canvas" data-viz='[
+                                {"type": "circle", "x": 300, "y": 100, "r": 40, "fill": "rgba(99, 102, 241, 0.2)"},
+                                {"type": "text", "x": 300, "y": 105, "text": "ENGINE ONLINE", "size": 18},
+                                {"type": "arrow", "x1": 300, "y1": 150, "x2": 300, "y2": 250},
+                                {"type": "rect", "x": 200, "y": 250, "w": 200, "h": 50, "fill": "rgba(34, 197, 94, 0.2)", "color": "#22c55e"},
+                                {"type": "text", "x": 300, "y": 280, "text": "CANVAS READY", "size": 16, "color": "#22c55e"}
+                            ]'></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(testMsg);
+            if (typeof renderAstraVisuals === 'function') {
+                renderAstraVisuals(testMsg);
+            } else {
+                alert("Error: Drawing Engine (renderAstraVisuals) is missing from script.js. I am fixing it now.");
+            }
+            container.scrollTop = container.scrollHeight;
+        };
+    </script>
 </body>
 </html>

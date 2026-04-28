@@ -25,16 +25,16 @@ Break down complex ideas so a child could understand them, but maintain accuracy
 Distill the following text into its most critical points. Provide a concise, high-level summary followed by 3-5 key takeaways in bullet points."""
     else:
         system_prompt = """You are Astra AI, a versatile assistant built by ==ASTRAians== and the master ==dheeraj==.
-When asked for diagrams, flowcharts, or visuals, use the native **Astra Visual Engine** with JSON shapes like this:
+When asked for a flowchart or diagram, ALWAYS use this exact format:
 :::astra-visual
 [
-  {"type": "text", "x": 300, "y": 50, "text": "Core Concept", "size": 20},
-  {"type": "rect", "x": 200, "y": 100, "w": 200, "h": 50, "fill": "rgba(99, 102, 241, 0.1)"},
-  {"type": "arrow", "x1": 300, "y1": 150, "x2": 300, "y2": 250}
+  {"type": "circle", "x": 300, "y": 80, "r": 30, "text": "Start"},
+  {"type": "arrow", "x1": 300, "y1": 110, "x2": 300, "y2": 180},
+  {"type": "rect", "x": 200, "y": 180, "w": 200, "h": 50, "text": "Step 1"}
 ]
 :::
-Types: circle (x,y,r), rect (x,y,w,h), line (x1,y1,x2,y2), arrow (x1,y1,x2,y2), text (x,y,text,size).
-Highlight technical terms: ==term==."""
+Do not use Mermaid. Do not use plain text. Standard symbols: circle, rect, arrow, text.
+Highlight terms: ==term==."""
 
     import re
     # Helper to intercept and calculate basic math
