@@ -14,16 +14,28 @@ def index():
 def ask():
     data = request.get_json()
     question = data.get('question', '').strip()
-    subject = data.get('subject', 'General').strip()
     action = data.get('action')
 
     if action == 'explain_simpler':
-        system_prompt = f"""You are a professional academic tutor specializing in {subject}.
-The user will provide an explanation. Rewrite this explanation in much simpler language with everyday examples.
-Use plain words. Avoid jargon. Make it easy for a beginner to understand."""
+        system_prompt = f"""You are Astra AI, a highly advanced and helpful AI assistant, similar to ChatGPT.
+The user wants a simpler explanation of the following text. Rewrite it using extremely simple language, common analogies, and clear examples.
+Break down complex ideas so a child could understand them, but maintain accuracy."""
     elif action == 'summarize':
-        system_prompt = f"""You are a professional academic tutor specializing in {subject}.
-The user will provide a detailed explanation. Summarize it into 3-5 clear, concise bullet points."""
+        system_prompt = f"""You are Astra AI, an advanced AI assistant. 
+Distill the following text into its most critical points. Provide a concise, high-level summary followed by 3-5 key takeaways in bullet points."""
+    else:
+        system_prompt = """You are Astra AI, a versatile assistant built by ==ASTRAians== and the master ==dheeraj==.
+When asked for diagrams, flowcharts, or visuals, use the native **Astra Visual Engine** with JSON shapes like this:
+:::astra-visual
+[
+  {"type": "text", "x": 300, "y": 50, "text": "Core Concept", "size": 20},
+  {"type": "rect", "x": 200, "y": 100, "w": 200, "h": 50, "fill": "rgba(99, 102, 241, 0.1)"},
+  {"type": "arrow", "x1": 300, "y1": 150, "x2": 300, "y2": 250}
+]
+:::
+Types: circle (x,y,r), rect (x,y,w,h), line (x1,y1,x2,y2), arrow (x1,y1,x2,y2), text (x,y,text,size).
+Highlight technical terms: ==term==."""
+
     import re
     # Helper to intercept and calculate basic math
     def solve_math(q):
@@ -58,12 +70,16 @@ The user will provide a detailed explanation. Summarize it into 3-5 clear, conci
     math_result = None
     if not action:
         math_result = solve_math(question)
-        system_prompt = f"""You are a professional academic tutor specializing in {subject}.
-Only answer questions related to academic subjects like science, mathematics, engineering, or school/college topics.
-If the question is not academic and not a math calculation, respond with: "I only answer academic-related questions."
-Give clear, structured, and correct answers. Use simple explanations and bullet points for clarity.
-Crucially, identify the most important keywords and core concepts in your response and wrap them in == (e.g., ==photosynthesis==) so they are highlighted for the student."""
+    
+    # Process Documents for RAG
+    documents = data.get('documents', [])
+    doc_context = ""
+    for doc in documents:
+        doc_text = extract_text_from_file(doc['data'], doc['name'])
+        doc_context += f"--- Document: {doc['name']} ---\n{doc_text}\n\n"
 
+    if doc_context:
+        question = f"{doc_context}\n\nUser Question: {question}"
 
     prompt = f"{system_prompt}\n\nUser: {question}\n\nAssistant:"
 
@@ -74,13 +90,20 @@ Crucially, identify the most important keywords and core concepts in your respon
             return
 
         try:
+            images = data.get('images', [])
+            model = "llava:latest" if images else "llama3:latest"
+            
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": True
+            }
+            if images:
+                payload["images"] = images
+
             resp = requests.post(
                 "http://localhost:11434/api/generate",
-                json={
-                    "model": "llama3:latest",
-                    "prompt": prompt,
-                    "stream": True
-                },
+                json=payload,
                 timeout=120,
                 stream=True
             )
@@ -108,6 +131,57 @@ Crucially, identify the most important keywords and core concepts in your respon
             yield f"\n\nConnection Error: {str(exc)}"
 
     return Response(stream_with_context(generate()), mimetype="text/plain; charset=utf-8")
+
+def extract_text_from_file(data_b64, filename):
+    import base64, io
+    file_bytes = base64.b64decode(data_b64)
+    text = ""
+    if filename.endswith('.pdf'):
+        try:
+            import PyPDF2
+            reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text: text += page_text + "\n"
+        except Exception as e:
+            text = f"[Error reading PDF: {str(e)}]"
+    elif filename.endswith('.txt'):
+        text = file_bytes.decode('utf-8', errors='ignore')
+    return text
+
+@app.route('/execute', methods=['POST'])
+def execute():
+    import subprocess, sys
+    code = request.get_json().get('code', '')
+    if not code: return {"error": "No code provided"}, 400
+    
+    try:
+        # Run in a separate process for basic isolation
+        # Note: In a production web app, you'd use a Docker container or more strict sandbox
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        return {
+            "output": result.stdout,
+            "error": result.stderr
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": "Execution timed out (10s limit)"}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.get_json()
+    try:
+        with open('feedback_learning.json', 'a') as f:
+            f.write(json.dumps(data) + '\n')
+        return {"status": "success"}, 200
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
 
 if __name__ == '__main__':
     app.run(debug=True)

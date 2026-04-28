@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic AI | Personal Tutor</title>
+    <title>Astra AI | Your Personal Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- No external dependencies for full offline-ready capability -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    </script>
 </head>
 <body>
     <aside class="sidebar">
         <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <span>ACADEMIC AI</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>ASTRA AI</span>
         </div>
         <button class="new-chat-btn" onclick="window.location.reload()">+ New Session</button>
         <div class="history-label" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Recent History</div>
@@ -30,14 +33,10 @@
     <main class="main-content">
         <header>
             <div class="header-left">
-                <select class="subject-select" id="subject-select">
-                    <option value="General">General Academic</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="History">History</option>
-                </select>
+                <div class="model-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    <span>General Mode</span>
+                </div>
             </div>
             <div class="header-right">
                 <button id="theme-toggle" style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
@@ -49,15 +48,28 @@
         <div id="chat-container">
             <div class="message ai">
                 <div class="message-content">
-                    Greetings! I am your <strong>Academic AI Tutor</strong>. How can I assist you in your studies today? Select a subject above or ask any academic question to begin.
+                    Greetings! I am <strong>Astra AI</strong>. How can I assist you today? Ask me anything to begin.
                 </div>
             </div>
         </div>
 
         <div class="input-container">
+            <div class="preview-container" id="preview-container"></div>
             <div class="input-wrapper">
-                <textarea id="user-input" placeholder="Type your academic question here..." rows="1"></textarea>
+                <div class="recording-indicator" id="recording-indicator">
+                    <span class="dot"></span>
+                    REC
+                </div>
+                <textarea id="user-input" placeholder="Type your question here..." rows="1"></textarea>
                 <div class="controls">
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    <input type="file" id="doc-upload" accept=".pdf,.txt,.docx,.csv" style="display: none;">
+                    <button class="image-upload-btn" id="upload-btn" title="Upload an image for analysis">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </button>
+                    <button class="image-upload-btn" id="doc-btn" title="Upload a document (PDF, TXT, etc.)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </button>
                     <button class="action-btn" id="explain-btn" title="Explain the last answer in simpler terms">Simpler Language</button>
                     <button class="action-btn" id="summarize-btn" title="Summarize the last answer into bullet points">Summarize</button>
                     <button class="stop-btn" id="stop-btn">
@@ -73,7 +85,7 @@
                 </div>
             </div>
             <p style="text-align: center; font-size: 0.7rem; color: var(--text-secondary); margin-top: 12px;">
-                Focused on Academic Excellence
+                Powered by Astra AI
             </p>
         </div>
     </main>
@@ -83,8 +95,8 @@
         <div class="modal-content">
             <button class="modal-close" id="close-modal">&times;</button>
             <div class="modal-header">
-                <h2>Unlock Academic Pro</h2>
-                <p>Take your local AI tutoring to the next level.</p>
+                <h2>Unlock Astra Pro</h2>
+                <p>Take your local AI experience to the next level.</p>
             </div>
             <div class="pricing-cards">
                 <div class="pricing-card">
@@ -129,5 +141,6 @@
             body.setAttribute('data-theme', 'dark');
         }
     </script>
+    <div id="toast">Thank you for your feedback!</div>
 </body>
 </html>
