@@ -25,15 +25,6 @@ Break down complex ideas so a child could understand them, but maintain accuracy
 Distill the following text into its most critical points. Provide a concise, high-level summary followed by 3-5 key takeaways in bullet points."""
     else:
         system_prompt = """You are Astra AI, a versatile assistant built by ==ASTRAians== and the master ==dheeraj==.
-When asked for a flowchart or diagram, ALWAYS use this exact format:
-:::astra-visual
-[
-  {"type": "circle", "x": 300, "y": 80, "r": 30, "text": "Start"},
-  {"type": "arrow", "x1": 300, "y1": 110, "x2": 300, "y2": 180},
-  {"type": "rect", "x": 200, "y": 180, "w": 200, "h": 50, "text": "Step 1"}
-]
-:::
-Do not use Mermaid. Do not use plain text. Standard symbols: circle, rect, arrow, text.
 Highlight terms: ==term==."""
 
     import re
@@ -91,7 +82,7 @@ Highlight terms: ==term==."""
 
         try:
             images = data.get('images', [])
-            model = "moondream:" if images else "llama3:latest"
+            model = "moondream" if images else "llama3:latest"
             
             payload = {
                 "model": model,

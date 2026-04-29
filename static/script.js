@@ -113,32 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         formatted = formatted.replace(/```(\w*)\s*([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
         
-        formatted = formatted.replace(/:::astra-visual\n([\s\S]*?)\n:::/g, (match, json) => {
-            return `<div class="visual-container"><canvas class="astra-canvas" data-viz='${json.trim()}'></canvas></div>`;
-        });
+
         
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formatted = formatted.replace(/==(.*?)==/g, '<span class="highlight">$1</span>');
         formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
         
-        formatted = formatted.replace(/(?:&lt;|<)svg([\s\S]*?)(?:&lt;|<)\/svg(?:&gt;|>)/gi, (match) => {
-            let decoded = match.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-                               .replace(/&amp;/g, '&').replace(/&apos;/g, "'");
-            decoded = decoded.replace(/^<code>/, '').replace(/<\/code>$/, '');
-            if (!decoded.startsWith('<svg')) {
-                decoded = '<svg ' + decoded.substring(decoded.indexOf('svg') + 3);
-            }
-            return `
-                <div class="rendered-svg-container">
-                    <div class="svg-header">
-                        <span>Astra Visual Preview</span>
-                        <button onclick="this.closest('.rendered-svg-container').querySelector('.svg-raw').classList.toggle('show-raw')">View Code</button>
-                    </div>
-                    <div class="svg-content">${decoded}</div>
-                    <pre class="svg-raw"><code>${match}</code></pre>
-                </div>
-            `;
-        });
+
 
         formatted = formatted.replace(/<pre><code class="language-(.*?)">([\s\S]*?)<\/code><\/pre>/g, (match, lang, code) => {
             const isPython = lang.toLowerCase() === 'python' || code.includes('import ') || code.includes('print(');
@@ -309,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             currentChat.push({ role: 'ai', content: accumulatedText });
             saveSession();
-            renderAstraVisuals(aiMsgBody);
+
         } catch (error) {
             if (error.name === 'AbortError') {
                 typingIndicator.innerHTML = '<em>Stopped.</em>';
@@ -415,45 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeUpgradeBtn.onclick = () => upgradeModal.classList.remove('active');
     upgradeModal.onclick = (e) => { if (e.target === upgradeModal) { upgradeModal.classList.remove('active'); } };
 
-    function renderAstraVisuals(container) {
-        const canvases = container.querySelectorAll('.astra-canvas');
-        canvases.forEach(canvas => {
-            try {
-                const ctx = canvas.getContext('2d');
-                const data = JSON.parse(canvas.getAttribute('data-viz'));
-                canvas.width = 600;
-                canvas.height = 350;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const isDark = document.body.dataset.theme === 'dark';
-                ctx.fillStyle = isDark ? '#111' : '#fcfcfc';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                const themeColor = '#6366f1';
-                const textCol = isDark ? '#eee' : '#111';
-                data.forEach(item => {
-                    ctx.beginPath();
-                    ctx.lineWidth = item.width || 2;
-                    ctx.strokeStyle = item.color || themeColor;
-                    ctx.fillStyle = item.fill || 'transparent';
-                    if (item.type === 'circle') {
-                        ctx.arc(item.x, item.y, item.r, 0, Math.PI * 2); if (item.fill) ctx.fill(); ctx.stroke();
-                    } else if (item.type === 'rect') {
-                        ctx.rect(item.x, item.y, item.w, item.h); if (item.fill) ctx.fill(); ctx.stroke();
-                    } else if (item.type === 'line') {
-                        ctx.moveTo(item.x1, item.y1); ctx.lineTo(item.x2, item.y2); ctx.stroke();
-                    } else if (item.type === 'text') {
-                        ctx.fillStyle = item.color || textCol; ctx.font = `bold ${item.size || 16}px sans-serif`;
-                        ctx.textAlign = 'center'; ctx.fillText(item.text, item.x, item.y);
-                    } else if (item.type === 'arrow') {
-                        const headlen = 10; const angle = Math.atan2(item.y2 - item.y1, item.x2 - item.x1);
-                        ctx.moveTo(item.x1, item.y1); ctx.lineTo(item.x2, item.y2);
-                        ctx.lineTo(item.x2 - headlen * Math.cos(angle - Math.PI / 6), item.y2 - headlen * Math.sin(angle - Math.PI / 6));
-                        ctx.moveTo(item.x2, item.y2); ctx.lineTo(item.x2 - headlen * Math.cos(angle + Math.PI / 6), item.y2 - headlen * Math.sin(angle + Math.PI / 6));
-                        ctx.stroke();
-                    }
-                });
-            } catch (e) { console.error(e); }
-        });
-    }
+
 
     renderHistory();
 });
