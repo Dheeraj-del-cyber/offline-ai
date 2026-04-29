@@ -91,7 +91,7 @@ Highlight terms: ==term==."""
 
         try:
             images = data.get('images', [])
-            model = "llava:latest" if images else "llama3:latest"
+            model = "moondream:" if images else "llama3:latest"
             
             payload = {
                 "model": model,
