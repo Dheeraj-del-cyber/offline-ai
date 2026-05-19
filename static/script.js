@@ -280,14 +280,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let accumulatedText = '';
+            let lastFlushed = 0;
+            const FLUSH_CHARS = 64; // update DOM every N chars to avoid blocking
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const chunk = decoder.decode(value, { stream: true });
                 accumulatedText += chunk;
-                aiMsgBody.innerHTML = formatMessage(accumulatedText);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                if (accumulatedText.length - lastFlushed > FLUSH_CHARS) {
+                    try {
+                        aiMsgBody.innerHTML = formatMessage(accumulatedText);
+                    } catch (e) {
+                        aiMsgBody.textContent = accumulatedText;
+                    }
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    lastFlushed = accumulatedText.length;
+                    // yield to the browser so UI can remain responsive
+                    await new Promise(r => setTimeout(r, 0));
+                }
             }
+            // final flush
+            try {
+                aiMsgBody.innerHTML = formatMessage(accumulatedText);
+            } catch (e) {
+                aiMsgBody.textContent = accumulatedText;
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
             currentChat.push({ role: 'ai', content: accumulatedText });
             saveSession();
 
