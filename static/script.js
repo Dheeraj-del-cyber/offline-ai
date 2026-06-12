@@ -431,7 +431,24 @@ document.addEventListener('DOMContentLoaded', () => {
     closeUpgradeBtn.onclick = () => upgradeModal.classList.remove('active');
     upgradeModal.onclick = (e) => { if (e.target === upgradeModal) { upgradeModal.classList.remove('active'); } };
 
-
+    // Mobile Sidebar Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    
+    if (menuToggle) {
+        menuToggle.onclick = () => {
+            sidebar.classList.add('open');
+            mobileOverlay.classList.add('active');
+        };
+    }
+    
+    if (mobileOverlay) {
+        mobileOverlay.onclick = () => {
+            sidebar.classList.remove('open');
+            mobileOverlay.classList.remove('active');
+        };
+    }
 
     renderHistory();
 });
