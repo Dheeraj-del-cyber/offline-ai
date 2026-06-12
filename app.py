@@ -195,4 +195,24 @@ def feedback():
         return {"status": "error", "message": str(e)}, 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import socket
+    def get_local_ip():
+        try:
+            # Create a dummy socket to determine the local IP used for internet routing
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except Exception:
+            return "127.0.0.1"
+            
+    local_ip = get_local_ip()
+    port = 5000
+    print("="*50)
+    print(f"🚀 ASTRA AI is running!")
+    print(f"📱 To access from your mobile phone, connect to the same Wi-Fi and open this URL:")
+    print(f"👉 http://{local_ip}:{port}")
+    print("="*50)
+    
+    app.run(host='0.0.0.0', port=port, debug=True)
