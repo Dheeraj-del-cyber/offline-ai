@@ -69,10 +69,30 @@ Highlight terms: ==term==."""
         doc_text = extract_text_from_file(doc['data'], doc['name'])
         doc_context += f"--- Document: {doc['name']} ---\n{doc_text}\n\n"
 
-    if doc_context:
-        question = f"{doc_context}\n\nUser Question: {question}"
+    history = data.get('history', [])
 
-    prompt = f"{system_prompt}\n\nUser: {question}\n\nAssistant:"
+    if action:
+        # For actions (summarize/explain), just use the single question context
+        if doc_context:
+            question = f"{doc_context}\n\nText: {question}"
+        prompt = f"{system_prompt}\n\nUser: {question}\n\nAssistant:"
+    else:
+        # For normal chat, build from history
+        prompt = system_prompt + "\n\n"
+        if doc_context:
+            prompt += f"{doc_context}\n\n"
+        
+        if history:
+            for msg in history:
+                role_str = "User" if msg.get("role") == "user" else "Assistant"
+                content = msg.get("content", "")
+                prompt += f"{role_str}: {content}\n\n"
+            
+            # Ensure it ends with Assistant:
+            if history[-1].get("role") != "ai":
+                prompt += "Assistant:"
+        else:
+            prompt += f"User: {question}\n\nAssistant:"
 
     def generate():
         if math_result is not None:
