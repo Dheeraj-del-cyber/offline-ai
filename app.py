@@ -102,7 +102,8 @@ Highlight terms: ==term==."""
 
         try:
             images = data.get('images', [])
-            model = "moondream" if images else "llama3:latest"
+            # Changed from moondream to llava for much higher image accuracy
+            model = "llava" if images else "llama3:latest"
             
             payload = {
                 "model": model,
@@ -149,11 +150,13 @@ def extract_text_from_file(data_b64, filename):
     text = ""
     if filename.endswith('.pdf'):
         try:
-            import PyPDF2
-            reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text: text += page_text + "\n"
+            # Using pdfplumber for significantly better accuracy than PyPDF2
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text: 
+                        text += page_text + "\n"
         except Exception as e:
             text = f"[Error reading PDF: {str(e)}]"
     elif filename.endswith('.txt'):
