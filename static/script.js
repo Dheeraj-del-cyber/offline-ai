@@ -269,10 +269,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const contextText = (action && currentChat.length > 0) ? currentChat[currentChat.length - 1].content : question;
+            const payload = {
+                question: contextText,
+                action: action,
+                images: selectedImages,
+                documents: selectedDocs
+            };
+            if (!action) {
+                payload.history = currentChat;
+            }
             const response = await fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: contextText, action: action, images: selectedImages, documents: selectedDocs }),
+                body: JSON.stringify(payload),
                 signal: abortController.signal
             });
             if (!response.ok) throw new Error(`Server Error: ${response.status}`);
